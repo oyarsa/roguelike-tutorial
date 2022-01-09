@@ -49,4 +49,16 @@ class Fighter(BaseComponent):
         self.parent.name = f"remains of {self.parent.name}"
         self.parent.render_order = RenderOrder.CORPSE
 
-        self.engine.message_log.add_message(death_msg, death_msg_colour)
+        self.engine.log(death_msg, death_msg_colour)
+
+    def take_damage(self, amount: int) -> None:
+        self.hp -= amount
+
+    def heal(self, amount: int) -> int:
+        if self.hp == self.max_hp:
+            return 0
+
+        new_hp = min(self.hp + amount, self.max_hp)
+        recovered = new_hp - self.hp
+        self.hp = new_hp
+        return recovered

@@ -1,3 +1,4 @@
+import traceback
 from copy import deepcopy
 
 import tcod
@@ -17,6 +18,7 @@ def main() -> None:
     room_min_size = 6
     max_rooms = 30
     max_monsters_per_room = 2
+    max_items_per_room = 2
 
     tile_set = tcod.tileset.load_tilesheet(
         "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
@@ -31,11 +33,12 @@ def main() -> None:
         map_width,
         map_height,
         max_monsters_per_room,
+        max_items_per_room,
         engine,
     )
     engine.update_fov()
 
-    engine.message_log.add_message(
+    engine.log(
         "Hello and welcome, adventurer, to yet another dungeon!", colour.WELCOME_TXT
     )
 
@@ -52,7 +55,14 @@ def main() -> None:
             engine.event_handler.on_render(console=root_console)
             context.present(root_console)
 
-            engine.event_handler.handle_events(context)
+            # noinspection PyBroadException
+            try:
+                for event in tcod.event.wait():
+                    context.convert_event(event)
+                    engine.event_handler.handle_events(event)
+            except Exception:
+                traceback.print_exc()
+                engine.log(traceback.format_exc(), colour.ERROR)
 
 
 if __name__ == "__main__":

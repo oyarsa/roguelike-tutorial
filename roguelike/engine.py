@@ -1,7 +1,10 @@
 from tcod.console import Console
 from tcod.map import compute_fov
 
+from roguelike import colour
+from roguelike.colour import RGB
 from roguelike.entity import Actor
+from roguelike.exceptions import ImpossibleActionError
 from roguelike.game_map import GameMap
 from roguelike.input_handlers import EventHandler, MainGameEventHandler
 from roguelike.message_log import MessageLog
@@ -38,4 +41,10 @@ class Engine:
     def handle_enemy_turns(self) -> None:
         for entity in set(self.game_map.actors) - {self.player}:
             if entity.ai is not None:
-                entity.ai.perform()
+                try:
+                    entity.ai.perform()
+                except ImpossibleActionError:
+                    pass
+
+    def log(self, text: str, fg: RGB = colour.WHITE, *, stack: bool = True) -> None:
+        self.message_log.add_message(text=text, fg=fg, stack=stack)

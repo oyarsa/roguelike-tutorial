@@ -6,7 +6,7 @@ import numpy as np
 from tcod.console import Console
 
 from roguelike import tile_types
-from roguelike.entity import Actor, Entity
+from roguelike.entity import Actor, Entity, Item
 
 if TYPE_CHECKING:
     from roguelike.engine import Engine
@@ -60,3 +60,7 @@ class GameMap:
             if (a.x, a.y) == (x, y):
                 return a
         return None
+
+    @property
+    def items(self) -> Iterator[Item]:
+        yield from (e for e in self.entities if isinstance(e, Item))
