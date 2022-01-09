@@ -3,13 +3,15 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
+from roguelike import colour
+
 if TYPE_CHECKING:
     from roguelike.engine import Engine
     from roguelike.entity import Actor, Entity
 
 
 class Action(ABC):
-    def __init__(self, entity: Actor) -> None:
+    def __init__(self, entity: Actor):
         super().__init__()
         self.entity = entity
 
@@ -23,7 +25,7 @@ class Action(ABC):
 
 
 class ActionWithDirection(Action, ABC):
-    def __init__(self, entity: Actor, dx: int, dy: int) -> None:
+    def __init__(self, entity: Actor, dx: int, dy: int):
         super().__init__(entity)
         self.dx = dx
         self.dy = dy
@@ -43,7 +45,7 @@ class ActionWithDirection(Action, ABC):
 
 class EscapeAction(Action):
     def perform(self) -> None:
-        exit()
+        raise SystemExit
 
 
 class MovementAction(ActionWithDirection):
@@ -66,15 +68,20 @@ class MeleeAction(ActionWithDirection):
         if not target:
             return
 
-        attack_desc = f"{self.entity.name.capitalize()} attacks {target.name} "
-
         damage = self.entity.fighter.power - target.fighter.defense
+
+        if self.entity is self.engine.player:
+            atk_colour = colour.PLAYER_ATK
+        else:
+            atk_colour = colour.ENEMY_ATK
+
+        attack_desc = f"{self.entity.name.capitalize()} attacks {target.name} "
         if damage > 0:
             attack_desc += f"for {damage} hit points"
             target.fighter.hp -= damage
         else:
             attack_desc += "but does no damage"
-        print(attack_desc)
+        self.engine.message_log.add_message(attack_desc, atk_colour)
 
 
 class BumpAction(ActionWithDirection):

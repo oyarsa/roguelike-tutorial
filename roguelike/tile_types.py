@@ -1,8 +1,7 @@
-from typing import Any
-
 import numpy as np
 
 from roguelike.colour import RGB, WHITE
+from roguelike.types import ndarray
 
 graphic_dt = np.dtype(
     [
@@ -28,12 +27,12 @@ def new_tile(
     transparent: int,
     dark: tuple[int, RGB, RGB],
     light: tuple[int, RGB, RGB]
-) -> np.ndarray[Any, Any]:
+) -> ndarray:
     return np.array((walkable, transparent, dark, light), dtype=tile_dt)
 
 
 SPACE = ord(" ")
-SHROUD: np.ndarray[Any, Any] = np.array((ord(" "), WHITE, (0, 0, 0)), dtype=graphic_dt)
+SHROUD: ndarray = np.array((ord(" "), WHITE, (0, 0, 0)), dtype=graphic_dt)
 floor = new_tile(
     walkable=True,
     transparent=True,

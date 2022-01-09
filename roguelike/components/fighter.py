@@ -2,16 +2,19 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from roguelike import colour
 from roguelike.components.base_component import BaseComponent
+from roguelike.input_handlers import GameOverEventHandler
+from roguelike.render_order import RenderOrder
 
 if TYPE_CHECKING:
     from roguelike.entity import Actor
 
 
 class Fighter(BaseComponent):
-    entity: Actor
+    parent: Actor
 
-    def __init__(self, hp: int, defense: int, power: int) -> None:
+    def __init__(self, hp: int, defense: int, power: int):
         self.max_hp = hp
         self._hp = hp
         self.defense = defense
@@ -27,19 +30,23 @@ class Fighter(BaseComponent):
     @hp.setter
     def hp(self, value: int) -> None:
         self._hp = max(0, min(value, self.max_hp))
-        if self._hp == 0 and self.entity.ai:
+        if self._hp == 0 and self.parent.ai:
             self.die()
 
     def die(self) -> None:
-        if self.entity is self.engine.player:
+        if self.parent is self.engine.player:
             death_msg = "You died!"
+            death_msg_colour = colour.PLAYER_DIE
+            self.engine.event_handler = GameOverEventHandler(self.engine)
         else:
-            death_msg = f"{self.entity.name} is dead!"
+            death_msg = f"{self.parent.name} is dead!"
+            death_msg_colour = colour.ENEMY_DIE
 
-        self.entity.char = "%"
-        self.entity.colour = (191, 0, 0)
-        self.entity.blocks_movement = False
-        self.entity.ai = None
-        self.entity.name = f"remains of {self.entity.name}"
+        self.parent.char = "%"
+        self.parent.colour = (191, 0, 0)
+        self.parent.blocks_movement = False
+        self.parent.ai = None
+        self.parent.name = f"remains of {self.parent.name}"
+        self.parent.render_order = RenderOrder.CORPSE
 
-        print(death_msg)
+        self.engine.message_log.add_message(death_msg, death_msg_colour)

@@ -11,7 +11,7 @@ from roguelike.game_map import GameMap
 
 
 class RectangularRoom:
-    def __init__(self, x: int, y: int, width: int, height: int) -> None:
+    def __init__(self, x: int, y: int, width: int, height: int):
         self.x1 = x
         self.y1 = y
         self.x2 = x + width
@@ -63,7 +63,7 @@ def generate_dungeon(
         dungeon.tiles[new_room.inner] = tile_types.floor
 
         if len(rooms) == 0:
-            player.place(*new_room.center, dungeon)
+            player.place(*new_room.center, game_map=dungeon)
         else:
             for x, y in tunnel_between(rooms[-1].center, new_room.center):
                 dungeon.tiles[x, y] = tile_types.floor

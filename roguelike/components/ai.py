@@ -7,20 +7,20 @@ import numpy as np
 import tcod.path
 
 from roguelike.actions import Action, MeleeAction, MovementAction, WaitAction
-from roguelike.components.base_component import BaseComponent
+from roguelike.types import ndarray
 
 if TYPE_CHECKING:
     from roguelike.entity import Actor
 
 
-class BaseAI(Action, BaseComponent, ABC):
+class BaseAI(Action, ABC):
     entity: Actor
 
     def perform(self) -> None:
         ...
 
     def get_path_to(self, dest_x: int, dest_y: int) -> list[tuple[int, int]]:
-        cost = np.array(self.entity.game_map.tiles["walkable"], dtype=np.int8)
+        cost: ndarray = np.array(self.entity.game_map.tiles["walkable"], dtype=np.int8)
 
         for entity in self.entity.game_map.entities:
             if entity.blocks_movement and cost[entity.x, entity.y]:
@@ -30,15 +30,13 @@ class BaseAI(Action, BaseComponent, ABC):
         pathfinder = tcod.path.Pathfinder(graph)
 
         pathfinder.add_root((self.entity.x, self.entity.y))
-        path: list[list[int]] = cast(
-            list, pathfinder.path_to((dest_x, dest_y))[1:].tolist()
-        )
+        path = cast(list[list[int]], pathfinder.path_to((dest_x, dest_y))[1:].tolist())
 
         return [(x, y) for x, y in path]
 
 
 class HostileEnemy(BaseAI):
-    def __init__(self, entity: Actor) -> None:
+    def __init__(self, entity: Actor):
         super().__init__(entity)
         self.path: list[tuple[int, int]] = []
 

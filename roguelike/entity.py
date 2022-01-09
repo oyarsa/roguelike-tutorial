@@ -24,7 +24,7 @@ class Entity:
         name: str = "<unnamed>",
         blocks_movement: bool = False,
         render_order: RenderOrder = RenderOrder.CORPSE,
-        game_map: GameMap | None = None,
+        parent: GameMap | None = None,
     ):
         self.x = x
         self.y = y
@@ -33,10 +33,10 @@ class Entity:
         self.name = name
         self.blocks_movement = blocks_movement
         self.render_order = render_order
-        self._game_map = game_map
+        self._parent = parent
 
-        if self._game_map is not None:
-            self._game_map.entities.add(self)
+        if self._parent is not None:
+            self._parent.entities.add(self)
 
     def move(self, dx: int, dy: int) -> None:
         self.x += dx
@@ -48,27 +48,31 @@ class Entity:
     def spawn(self: T, game_map: GameMap, x: int, y: int) -> T:
         clone = deepcopy(self)
         clone.x, clone.y = x, y
-        clone.game_map = game_map
+        clone.parent = game_map
         game_map.entities.add(clone)
         return clone
+
+    @property
+    def parent(self) -> GameMap:
+        assert self._parent is not None
+        return self._parent
+
+    @parent.setter
+    def parent(self, game_map: GameMap) -> None:
+        self._parent = game_map
+
+    @property
+    def game_map(self) -> GameMap:
+        return self.parent.game_map
 
     def place(self, x: int, y: int, game_map: GameMap | None = None) -> None:
         self.x = x
         self.y = y
         if game_map:
-            if self._game_map is not None:
-                self._game_map.entities.remove(self)
-            self._game_map = game_map
+            if self._parent is not None and self._parent is self.game_map:
+                self.game_map.entities.remove(self)
+            self._parent = game_map
             game_map.entities.add(self)
-
-    @property
-    def game_map(self) -> GameMap:
-        assert self._game_map is not None
-        return self._game_map
-
-    @game_map.setter
-    def game_map(self, game_map: GameMap) -> None:
-        self._game_map = game_map
 
 
 class Actor(Entity):
@@ -94,7 +98,7 @@ class Actor(Entity):
         )
         self.ai: BaseAI | None = ai_cls(self)
         self.fighter = fighter
-        self.fighter.entity = self
+        self.fighter.parent = self
 
     @property
     def is_alive(self) -> bool:

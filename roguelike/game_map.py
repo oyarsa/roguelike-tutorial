@@ -28,13 +28,16 @@ class GameMap:
         return 0 <= x < self.width and 0 <= y < self.height
 
     def render(self, console: Console) -> None:
+        # noinspection PyTypeChecker
         console.tiles_rgb[: self.width, : self.height] = np.select(
             condlist=[self.visible, self.explored],
             choicelist=[self.tiles["light"], self.tiles["dark"]],
-            default=tile_types.SHROUD,  # type: ignore
+            default=tile_types.SHROUD,
         )
 
-        for entity in self.entities:
+        entities = sorted(self.entities, key=lambda x: x.render_order.value)
+
+        for entity in entities:
             if self.visible[entity.x, entity.y]:
                 console.print(entity.x, entity.y, entity.char, fg=entity.colour)
 
@@ -43,6 +46,10 @@ class GameMap:
             if e.blocks_movement and (e.x, e.y) == (x, y):
                 return e
         return None
+
+    @property
+    def game_map(self) -> GameMap:
+        return self
 
     @property
     def actors(self) -> Iterator[Actor]:
