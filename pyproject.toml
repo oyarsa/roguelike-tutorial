@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "roguelike"
+version = "0.1.0"
+description = ""
+authors = ["Italo Silva <italo@maleldil.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+numpy = "^1.22.0"
+tcod = "^13.2.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+black = "^21.12b0"
+isort = "^5.10.1"
+flake8 = "^4.0.1"
+mypy = "^0.930"
+
+[tool.poetry.scripts]
+game = "roguelike.main:main"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
