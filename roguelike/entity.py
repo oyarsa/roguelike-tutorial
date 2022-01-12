@@ -1,15 +1,16 @@
 from __future__ import annotations
 
+import math
 from copy import deepcopy
 from typing import TYPE_CHECKING, Type, TypeVar
 
 from roguelike.colour import RGB, WHITE
 from roguelike.components.ai import BaseAI
-from roguelike.components.consumable import Consumable
 from roguelike.components.inventory import Inventory
 from roguelike.render_order import RenderOrder
 
 if TYPE_CHECKING:
+    from roguelike.components.consumable import Consumable
     from roguelike.components.fighter import Fighter
     from roguelike.game_map import GameMap
 
@@ -75,6 +76,9 @@ class Entity:
                 self.game_map.entities.remove(self)
             self._parent = game_map
             game_map.entities.add(self)
+
+    def distance(self, x: int, y: int) -> float:
+        return math.sqrt((x - self.x) ** 2 + (y - self.y) ** 2)
 
 
 class Actor(Entity):

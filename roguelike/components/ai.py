@@ -1,12 +1,19 @@
 from __future__ import annotations
 
+import random
 from abc import ABC
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
 import tcod.path
 
-from roguelike.actions import Action, MeleeAction, MovementAction, WaitAction
+from roguelike.actions import (
+    Action,
+    BumpAction,
+    MeleeAction,
+    MovementAction,
+    WaitAction,
+)
 from roguelike.types import ndarray
 
 if TYPE_CHECKING:
@@ -58,3 +65,22 @@ class HostileEnemy(BaseAI):
             ).perform()
 
         return WaitAction(self.entity).perform()
+
+
+class ConfusedEnemy(BaseAI):
+    def __init__(self, entity: Actor, previous_ai: BaseAI | None, turns_remaining: int):
+        super().__init__(entity)
+        self.previous_ai = previous_ai
+        self.turns_remainig = turns_remaining
+
+    def perform(self) -> None:
+        if self.turns_remainig <= 0:
+            self.engine.log(f"The {self.entity.name} is no longer confused.")
+            self.entity.ai = self.previous_ai
+            return
+
+        dir_x, dir_y = random.choice(
+            [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)]
+        )
+        self.turns_remainig -= 1
+        return BumpAction(self.entity, dir_x, dir_y).perform()

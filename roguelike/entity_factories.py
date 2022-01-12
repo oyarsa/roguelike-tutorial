@@ -1,6 +1,6 @@
 from roguelike.colour import WHITE
+from roguelike.components import consumable
 from roguelike.components.ai import HostileEnemy
-from roguelike.components.consumable import HealingConsumable
 from roguelike.components.fighter import Fighter
 from roguelike.components.inventory import Inventory
 from roguelike.entity import Actor, Item
@@ -33,5 +33,23 @@ health_potion = Item(
     char="!",
     colour=(127, 0, 255),
     name="Health Potion",
-    consumable=HealingConsumable(amount=4),
+    consumable=consumable.HealingConsumable(amount=4),
+)
+lightning_scroll = Item(
+    char="~",
+    colour=(255, 255, 0),
+    name="Lightning Scroll",
+    consumable=consumable.LightningDamageConsumable(damage=20, max_range=5),
+)
+confusion_scroll = Item(
+    char="~",
+    colour=(207, 63, 255),
+    name="Confusion Scroll",
+    consumable=consumable.ConfusionConsumable(number_of_turns=10),
+)
+firebal_scroll = Item(
+    char="~",
+    colour=(255, 0, 0),
+    name="Fireball Scroll",
+    consumable=consumable.FireballDamageConsumable(damage=12, radius=3),
 )
