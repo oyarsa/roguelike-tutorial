@@ -1,3 +1,6 @@
+import lzma
+import pickle
+
 from tcod.console import Console
 from tcod.map import compute_fov
 
@@ -6,7 +9,6 @@ from roguelike.colour import RGB
 from roguelike.entity import Actor
 from roguelike.exceptions import ImpossibleActionError
 from roguelike.game_map import GameMap
-from roguelike.input_handlers import EventHandler, MainGameEventHandler
 from roguelike.message_log import MessageLog
 from roguelike.render_functions import render_bar, render_names_at_mouse_loc
 
@@ -16,7 +18,6 @@ class Engine:
 
     def __init__(self, player: Actor):
         self.player = player
-        self.event_handler: EventHandler = MainGameEventHandler(self)
         self.message_log = MessageLog()
         self.mouse_location = (0, 0)
 
@@ -48,3 +49,8 @@ class Engine:
 
     def log(self, text: str, fg: RGB = colour.WHITE, *, stack: bool = True) -> None:
         self.message_log.add_message(text=text, fg=fg, stack=stack)
+
+    def save_as(self, filename: str) -> None:
+        save_data = lzma.compress(pickle.dumps(self))
+        with open(filename, "rb") as f:
+            f.write(save_data)

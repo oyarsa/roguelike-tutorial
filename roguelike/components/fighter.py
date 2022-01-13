@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 from roguelike import colour
 from roguelike.components.base_component import BaseComponent
-from roguelike.input_handlers import GameOverEventHandler
 from roguelike.render_order import RenderOrder
 
 if TYPE_CHECKING:
@@ -37,7 +36,6 @@ class Fighter(BaseComponent):
         if self.parent is self.engine.player:
             death_msg = "You died!"
             death_msg_colour = colour.PLAYER_DIE
-            self.engine.event_handler = GameOverEventHandler(self.engine)
         else:
             death_msg = f"{self.parent.name} is dead!"
             death_msg_colour = colour.ENEMY_DIE
