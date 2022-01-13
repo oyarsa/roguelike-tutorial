@@ -12,6 +12,7 @@ from roguelike.render_order import RenderOrder
 if TYPE_CHECKING:
     from roguelike.components.consumable import Consumable
     from roguelike.components.fighter import Fighter
+    from roguelike.components.level import Level
     from roguelike.game_map import GameMap
 
 T = TypeVar("T", bound="Entity")
@@ -93,6 +94,7 @@ class Actor(Entity):
         ai_cls: Type[BaseAI],
         fighter: Fighter,
         inventory: Inventory,
+        level: Level,
     ):
         super().__init__(
             x=x,
@@ -110,6 +112,9 @@ class Actor(Entity):
 
         self.inventory = inventory
         self.inventory.parent = self
+
+        self.level = level
+        self.level.parent = self
 
     @property
     def is_alive(self) -> bool:

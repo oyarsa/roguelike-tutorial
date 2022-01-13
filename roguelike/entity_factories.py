@@ -3,6 +3,7 @@ from roguelike.components import consumable
 from roguelike.components.ai import HostileEnemy
 from roguelike.components.fighter import Fighter
 from roguelike.components.inventory import Inventory
+from roguelike.components.level import Level
 from roguelike.entity import Actor, Item
 
 player = Actor(
@@ -12,6 +13,7 @@ player = Actor(
     ai_cls=HostileEnemy,
     fighter=Fighter(hp=30, defense=2, power=5),
     inventory=Inventory(capacity=26),
+    level=Level(level_up_base=200),
 )
 orc = Actor(
     char="o",
@@ -20,6 +22,7 @@ orc = Actor(
     ai_cls=HostileEnemy,
     fighter=Fighter(hp=10, defense=0, power=3),
     inventory=Inventory(capacity=0),
+    level=Level(xp_given=35),
 )
 troll = Actor(
     char="t",
@@ -28,6 +31,7 @@ troll = Actor(
     ai_cls=HostileEnemy,
     fighter=Fighter(hp=16, defense=1, power=4),
     inventory=Inventory(capacity=0),
+    level=Level(xp_given=100),
 )
 health_potion = Item(
     char="!",

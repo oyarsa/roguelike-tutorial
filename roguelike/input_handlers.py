@@ -7,7 +7,14 @@ from typing import TYPE_CHECKING, Callable, Optional, Union
 import tcod.event
 
 from roguelike import colour
-from roguelike.actions import Action, BumpAction, DropItem, PickupAction, WaitAction
+from roguelike.actions import (
+    Action,
+    BumpAction,
+    DropItem,
+    PickupAction,
+    TakeStairsAction,
+    WaitAction,
+)
 from roguelike.entity import Item
 from roguelike.exceptions import ImpossibleActionError, QuitWithoutSaving
 
@@ -128,8 +135,14 @@ class EventHandler(BaseEventHandler):
 class MainGameEventHandler(EventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> ActionOrHandler | None:
         action: Action | None = None
+
         key = event.sym
+        modifier = event.mod
+
         player = self.engine.player
+
+        if key == tcod.event.K_PERIOD and modifier & tcod.event.KMOD_SHIFT:
+            return TakeStairsAction(player)
 
         if key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
@@ -148,6 +161,8 @@ class MainGameEventHandler(EventHandler):
             return InventoryDropHandler(self.engine)
         elif key == tcod.event.K_SLASH:
             return LookHandler(self.engine)
+        elif tcod.event.K_c:
+            return CharacterScreenEventHandler(self.engine)
 
         return action
 
@@ -409,3 +424,89 @@ class PopupMessage(BaseEventHandler):
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> BaseEventHandler | None:
         return self.parent
+
+
+class LevelUpEventHandler(AskUserEventHandler):
+    TITLE = "Level Up"
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+
+        if self.engine.player.x <= 30:
+            x = 40
+        else:
+            x = 0
+
+        console.draw_frame(
+            x=x,
+            y=0,
+            width=35,
+            height=8,
+            title=self.TITLE,
+            clear=True,
+            fg=colour.WHITE,
+            bg=colour.BLACK,
+        )
+
+        console.print(x=x, y=1, string="Congratulations! You level up!")
+        console.print(x=x, y=2, string="Select and attribute to increase.")
+
+        fighter = self.engine.player.fighter
+        console.print(x=x + 1, y=4, string=f"a) +20 HP (current: {fighter.max_hp}")
+        console.print(x=x + 1, y=5, string=f"b) +1 Power (current: {fighter.power}")
+        console.print(x=x + 1, y=6, string=f"c) +1 Defense (current: {fighter.defense}")
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> ActionOrHandler | None:
+        key = event.sym
+        index = key - tcod.event.K_a
+        player = self.engine.player
+
+        if index == 0:
+            player.level.increase_max_hp()
+        elif index == 1:
+            player.level.increase_power()
+        elif index == 2:
+            player.level.increase_defense()
+        else:
+            self.engine.log("Invalid entry.", colour.INVALID)
+            return None
+
+        return super().ev_keydown(event)
+
+    def ev_mousebuttondown(
+        self, event: tcod.event.MouseButtonDown
+    ) -> ActionOrHandler | None:
+        return None
+
+
+class CharacterScreenEventHandler(AskUserEventHandler):
+    TITLE = "Character Information"
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+
+        x = 40 if self.engine.player.x <= 30 else 0
+        y = 0
+        width = len(self.TITLE) + 4
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width,
+            height=8,
+            title=self.TITLE,
+            clear=True,
+            fg=colour.WHITE,
+            bg=colour.BLACK,
+        )
+
+        level = self.engine.player.level
+        fighter = self.engine.player.fighter
+        console.print(x=x + 1, y=y + 1, string=f"Level: {level.current_level}")
+        console.print(x=x + 1, y=y + 2, string=f"XP: {level.current_xp}")
+        console.print(
+            x=x + 1, y=y + 3, string=f"XP for next level: {level.xp_to_next_level}"
+        )
+        console.print(x=x + 1, y=y + 4, string=f"Attack: {fighter.power}")
+        console.print(x=x + 1, y=y + 5, string=f"Defense: {fighter.defense}")
+        console.print(x=x + 1, y=y + 6, string=f"Max HP: {fighter.max_hp}")

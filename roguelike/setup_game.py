@@ -10,7 +10,7 @@ import tcod.image
 
 from roguelike import colour, entity_factories, input_handlers, resources
 from roguelike.engine import Engine
-from roguelike.procgen import generate_dungeon
+from roguelike.game_map import GameWorld
 
 
 def new_game() -> Engine:
@@ -21,21 +21,17 @@ def new_game() -> Engine:
     room_min_size = 6
     max_rooms = 30
 
-    max_monsters_per_room = 2
-    max_items_per_room = 2
-
     player = copy.deepcopy(entity_factories.player)
     engine = Engine(player=player)
-    engine.game_map = generate_dungeon(
+    engine.game_world = GameWorld(
         max_rooms=max_rooms,
         room_min_size=room_min_size,
         room_max_size=room_max_size,
         map_width=map_width,
         map_height=map_height,
-        max_monsters_per_room=max_monsters_per_room,
-        max_items_per_room=max_items_per_room,
         engine=engine,
     )
+    engine.game_world.generate_floor()
     engine.update_fov()
 
     engine.log("Hello and welcome, adventure", colour.WELCOME_TEXT)

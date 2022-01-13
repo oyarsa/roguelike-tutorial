@@ -8,13 +8,18 @@ from roguelike import colour
 from roguelike.colour import RGB
 from roguelike.entity import Actor
 from roguelike.exceptions import ImpossibleActionError
-from roguelike.game_map import GameMap
+from roguelike.game_map import GameMap, GameWorld
 from roguelike.message_log import MessageLog
-from roguelike.render_functions import render_bar, render_names_at_mouse_loc
+from roguelike.render_functions import (
+    render_bar,
+    render_dungeon_level,
+    render_names_at_mouse_loc,
+)
 
 
 class Engine:
     game_map: GameMap
+    game_world: GameWorld
 
     def __init__(self, player: Actor):
         self.player = player
@@ -30,6 +35,9 @@ class Engine:
             current_value=self.player.fighter.hp,
             max_value=self.player.fighter.max_hp,
             total_width=20,
+        )
+        render_dungeon_level(
+            console=console, level=self.game_world.current_floor, location=(0, 47)
         )
         render_names_at_mouse_loc(console=console, x=21, y=44, engine=self)
 
@@ -52,5 +60,5 @@ class Engine:
 
     def save_as(self, filename: str) -> None:
         save_data = lzma.compress(pickle.dumps(self))
-        with open(filename, "rb") as f:
+        with open(filename, "wb") as f:
             f.write(save_data)

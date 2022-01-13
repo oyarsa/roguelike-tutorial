@@ -138,3 +138,12 @@ class PickupAction(Action):
 class DropItem(ItemAction):
     def perform(self) -> None:
         self.entity.inventory.drop(self.item)
+
+
+class TakeStairsAction(Action):
+    def perform(self) -> None:
+        if (self.entity.x, self.entity.y) == self.entity.game_map.downstairs_location:
+            self.engine.game_world.generate_floor()
+            self.engine.log("You descend the staircase.", colour.DESCEND)
+        else:
+            raise ImpossibleActionError("There are not stairs here.")

@@ -40,3 +40,10 @@ def render_names_at_mouse_loc(console: Console, x: int, y: int, engine: Engine) 
     mouse_x, mouse_y = engine.mouse_location
     names = get_names_at(x=mouse_x, y=mouse_y, game_map=engine.game_map)
     console.print(x=x, y=y, string=names)
+
+
+def render_dungeon_level(
+    console: Console, level: int, location: tuple[int, int]
+) -> None:
+    x, y = location
+    console.print(x=x, y=y, string=f"Dungeon level: {level}")

@@ -40,10 +40,10 @@ def main() -> None:
         except exceptions.QuitWithoutSaving:
             raise
         except SystemExit:
-            save_game(handler, "savegame.csv")
+            save_game(handler, "savegame.sav")
             raise
         except BaseException:
-            save_game(handler, "savegame.csv")
+            save_game(handler, "savegame.sav")
             raise
 
 

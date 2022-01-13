@@ -49,6 +49,8 @@ class Fighter(BaseComponent):
 
         self.engine.log(death_msg, death_msg_colour)
 
+        self.engine.player.level.add_xp(self.parent.level.xp_given)
+
     def take_damage(self, amount: int) -> None:
         self.hp -= amount
 
