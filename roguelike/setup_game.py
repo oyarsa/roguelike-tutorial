@@ -10,6 +10,7 @@ import tcod.image
 
 from roguelike import colour, entity_factories, input_handlers, resources
 from roguelike.engine import Engine
+from roguelike.entity import Actor, Item
 from roguelike.game_map import GameWorld
 
 
@@ -35,7 +36,18 @@ def new_game() -> Engine:
     engine.update_fov()
 
     engine.log("Hello and welcome, adventure", colour.WELCOME_TEXT)
+
+    grant_item(player, entity_factories.dagger)
+    grant_item(player, entity_factories.leather_armour)
+
     return engine
+
+
+def grant_item(player: Actor, item: Item) -> None:
+    item = copy.deepcopy(item)
+    item.parent = player.inventory
+    player.inventory.items.append(item)
+    player.equipment.toggle_equip(item, add_message=False)
 
 
 class MainMenu(input_handlers.BaseEventHandler):

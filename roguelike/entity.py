@@ -11,6 +11,8 @@ from roguelike.render_order import RenderOrder
 
 if TYPE_CHECKING:
     from roguelike.components.consumable import Consumable
+    from roguelike.components.equipment import Equipment
+    from roguelike.components.equippable import Equipabble
     from roguelike.components.fighter import Fighter
     from roguelike.components.level import Level
     from roguelike.game_map import GameMap
@@ -92,6 +94,7 @@ class Actor(Entity):
         colour: RGB = WHITE,
         name: str = "<unnamed>",
         ai_cls: Type[BaseAI],
+        equipment: Equipment,
         fighter: Fighter,
         inventory: Inventory,
         level: Level,
@@ -106,6 +109,9 @@ class Actor(Entity):
             render_order=RenderOrder.ACTOR,
         )
         self.ai: BaseAI | None = ai_cls(self)
+
+        self.equipment = equipment
+        self.equipment.parent = self
 
         self.fighter = fighter
         self.fighter.parent = self
@@ -125,12 +131,13 @@ class Item(Entity):
     def __init__(
         self,
         *,
-        consumable: Consumable,
         x: int = 0,
         y: int = 0,
         char: str = "?",
         colour: RGB = WHITE,
         name: str = "<unnamed>",
+        consumable: Consumable | None = None,
+        equippable: Equipabble | None = None,
     ):
         super().__init__(
             x=x,
@@ -142,4 +149,9 @@ class Item(Entity):
             render_order=RenderOrder.ITEM,
         )
         self.consumable = consumable
-        self.consumable.parent = self
+        if self.consumable is not None:
+            self.consumable.parent = self
+
+        self.equippable = equippable
+        if self.equippable is not None:
+            self.equippable.parent = self

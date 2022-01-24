@@ -109,7 +109,8 @@ class ItemAction(Action):
         return self.engine.game_map.get_actor_at(*self.target_xy)
 
     def perform(self) -> None:
-        self.item.consumable.activate(self)
+        if self.item.consumable is not None:
+            self.item.consumable.activate(self)
 
 
 class PickupAction(Action):
@@ -137,6 +138,8 @@ class PickupAction(Action):
 
 class DropItem(ItemAction):
     def perform(self) -> None:
+        if self.entity.equipment.item_is_equipped(self.item):
+            self.entity.equipment.toggle_equip(self.item)
         self.entity.inventory.drop(self.item)
 
 
@@ -147,3 +150,12 @@ class TakeStairsAction(Action):
             self.engine.log("You descend the staircase.", colour.DESCEND)
         else:
             raise ImpossibleActionError("There are not stairs here.")
+
+
+class EquipAction(Action):
+    def __init__(self, entity: Actor, item: Item):
+        super().__init__(entity)
+        self.item = item
+
+    def perform(self) -> None:
+        self.entity.equipment.toggle_equip(self.item)
